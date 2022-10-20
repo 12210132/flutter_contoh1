@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
+use Agoenxz21\Datatables\Datatable;
+use App\Controllers\BaseController; 
 use App\Models\AnggotaModel;
 use CodeIgniter\Email\Email;
+use CodeIgniter\Exceptions\PageNotFoundException;
 use Config\Email as ConfigEmail;
 
 class AnggotaController extends BaseController
@@ -66,5 +68,62 @@ class AnggotaController extends BaseController
                         ->setStatusCode(500);
         }
         
+    }
+
+    public function ViewLupaPassword(){
+        return view('lupa_password');
+    }
+
+    public function logout(){
+        $this->seesion->destory();
+        return redirect()->to('login');
+    }
+    public function index(){
+        return view('anggota/table');
+    }
+
+    public function all(){
+        $pm = new AnggotaModel();
+        $pm->select('id, nama, gender, email');
+
+        return (new Datatable( $pm ))
+                ->setFieldFilter(['nama', 'email', 'gender'])
+                ->draw();
+    }
+
+    public function show($id){
+        $r = (new AnggotaModel())->where('id', $id)->first();
+        if($r == null)throw PageNotFoundException::forPageNotFound();
+
+        return $this->response->setJSON($r);
+    }
+
+    public function store(){
+        $pm     = new AnggotaModel();
+        $sandi  = $this->request->getVar('sandi');
+
+        $id = $pm->insert([
+            'nama'      => $this->request->getVar('nama'),
+            'gender'    => $this->request->getVar('gender'),
+            'email'     => $this->request->getVar('email'),
+            'sandi'     => password_hash($sandi, PASSWORD_BCRYPT),
+        ]);
+        return $this->response->setJSON(['id' => $id])
+                    ->setStatusCode( intval($id) > 0 ? 200 : 406 );
+    }
+
+    public function update(){
+        $pm     = new AnggotaModel();
+        $id     = (int)$this->request->getVar('id');
+
+        if($pm->find($id) == null )
+            throw PageNotFoundException::forPageNotFound();
+
+        $hasil  = $pm->update($id, [
+            'nama'      => $this->request->getVar('nama'),
+            'gender'    => $this->request->getVar('gender'),
+            'email'     => $this->request->getVar('email'),
+        ]);
+        return $this->response->setJSON(['result'=>$hasil]);
     }
 }
