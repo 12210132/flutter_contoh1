@@ -2,6 +2,8 @@
 
 namespace Config;
 
+use CodeIgniter\Router\RouteCollection;
+
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
 
@@ -37,6 +39,32 @@ $routes->set404Override();
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 
+$routes->group('login', function(RouteCollection $routes){
+    $routes->get('lupa', 'PerpusController::viewLupaPassword');
+    $routes->get('/', 'PerpusController::viewLogin');
+    $routes->post('/', 'PerpusController::login');
+    $routes->delete('/', 'PerpusController::logout');
+    $routes->patch('/', 'PerpusController::lupaPassword');
+});
+
+$routes->group('perpus', ['filter'=>'otentikasi'], function(RouteCollection $routes){
+    $routes->get('/', 'PerpusController::index');
+    $routes->post('/', 'PerpusController::store');
+    $routes->patch('/', 'PerpusController::update');
+    $routes->delete('/', 'PerpusController::delete');
+    $routes->get('(:num)', 'PerpusController::show/$1');
+    $routes->get('all', 'PerpusController::all');
+}); 
+
+$routes->group('Penerbit', function(RouteCollection $routes){
+    $routes->get('/', 'PenerbitController::index');
+    $routes->post('/', 'PenerbitController::store');
+    $routes->patch('/', 'PenerbitController::update');
+    $routes->delete('/', 'PenerbitController::delete');
+    $routes->get('(:num)', 'PenerbitController::show/$1');
+    $routes->get('all', 'PenerbitController::all');
+});
+   
 /*
  * --------------------------------------------------------------------
  * Additional Routing
