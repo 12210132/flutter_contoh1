@@ -2,6 +2,8 @@
 
 namespace Config;
 
+use CodeIgniter\Router\RouteCollection;
+
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
 
@@ -36,6 +38,24 @@ $routes->set404Override();
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
+
+$routes->group('anggota', function(RouteCollection $routes){
+    $routes->get('/', 'AnggotaController::index');
+    $routes->post('/', 'AnggotaController::store');
+    $routes->patch('/', 'AnggotaController::update');
+    $routes->delete('/', 'AnggotaController::delete');
+    $routes->get('(:num)', 'AnggotaController::show/$1');
+    $routes->get('all', 'AnggotaController::all');
+});
+
+$routes->group('stok_koleksi', function(RouteCollection $routes){
+    $routes->get('/', 'StokKoleksiController::index');
+    $routes->post('/', 'StokKoleksiController::store');
+    $routes->patch('/', 'StokKoleksiController::update');
+    $routes->delete('/', 'StokKoleksiController::delete');
+    $routes->get('(:num)', 'StokKoleksiController::show/$1');
+    $routes->get('all', 'StokKoleksiController::all');
+});
 
 /*
  * --------------------------------------------------------------------

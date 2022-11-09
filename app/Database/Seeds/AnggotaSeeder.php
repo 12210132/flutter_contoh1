@@ -10,14 +10,14 @@ class AnggotaSeeder extends Seeder
     public function run()
     {
         $id = (new AnggotaModel())->insert([
-            'nama_lengkap' => 'Melis',
+            'nama_depan' => 'Melis',
             'nama_belakang' => 'Mel',
             'email' => 'melismel.mm@gmail.com',
-            'nohp' => '085432138906',
+            'nohp' => '081649188136',
             'alamat' => 'Mempawah',
             'kota' => 'Pontianak',
             'gender' => "P",
-            'foto' => ' ',
+            'foto' => '',
             'tgl_daftar' => '12-10-2022',
             'status_aktif' => "A",
             'berlaku_awal' => '12-10-2022',

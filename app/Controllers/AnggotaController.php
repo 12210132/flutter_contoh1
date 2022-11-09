@@ -4,90 +4,25 @@ namespace App\Controllers;
 
 use Agoenxz21\Datatables\Datatable;
 use App\Controllers\BaseController; 
+use App\Database\Migrations\Anggota;
 use App\Models\AnggotaModel;
+use CodeIgniter\Database\Database;
 use CodeIgniter\Email\Email;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use Config\Email as ConfigEmail;
 
 class AnggotaController extends BaseController
 {
-    public function login()
-    {
-        $email      = $this->request->getPost('email');
-        $password   = $this->request->getPost('sandi');
-
-        $anggota    = (new AnggotaModel())->where('email', $email)->first();
-
-        if($anggota == null){
-            return $this->response->setJSON(['message'=>'Email tidak terdaftar'])
-                        ->setStatusCode(404);
-        }
-
-        $cekPassword = password_verify($password, $anggota['sandi']);
-        if($cekPassword == false){
-            return $this->response->setJSON(['message'=>'Email dan sandi tidak cocok'])
-                        ->setStatusCode(403);
-        }
-
-        $this->session->set('anggota', $anggota);
-        return $this->response->setJSON(['messege'=>"Selamat datang {$anggota['nama_lengkap']} "])
-                    ->setStatusCode(200);
-
-    }
-
-    public function lupaPassword(){
-        $_email = $this->request->getPost('email');
-
-        $anggota = (new AnggotaModel())->where('email', $_email)->first();
-
-        if($anggota == null){
-            return $this->response->setJSON(['messege'=>'Email tidak terdaftar'])
-                        ->setStatusCode(404);  
-        }
-        $sandibaru = substr( md5( date('Y-m-dH:i:s')),5,5 );
-        $anggota['sandi'] = password_hash($sandibaru, PASSWORD_BCRYPT);
-        $r = (new AnggotaModel())->update($anggota['id'], $anggota);
-
-        if($r == false){
-            return $this->response->setJSON(['message'=>'Gagal merubah sandi'])
-                        ->setStatusCode(502);
-        }
-
-        $email = new Email(new ConfigEmail());
-        $email->setFrom('melismel.mm@gmail.com', 'perpustakaan');
-        $email->setTo($anggota['EMAIL']);
-        $email->setSubject('Reset Sandi Anggota');
-        $email->setMessage("Hallo {$anggota['nama_lengkap']} telah meminta reset baru. Reset baru kamu adalah <b>$sandibaru</b>");
-        $r = $email->send();
-
-        if($r == true){
-            return $this->response->setJSON(['messege'=>"Maaf ada kesalahan pengiriman email ke $_email"])
-                        ->setStatusCode(200);
-        }else{
-            return $this->response->setJSON(['messege'=>"Maaf ada kesalahan pengriman ke $_email"])
-                        ->setStatusCode(500);
-        }
-        
-    }
-
-    public function ViewLupaPassword(){
-        return view('lupa_password');
-    }
-
-    public function logout(){
-        $this->seesion->destory();
-        return redirect()->to('login');
-    }
     public function index(){
         return view('anggota/table');
     }
 
     public function all(){
         $pm = new AnggotaModel();
-        $pm->select('id, nama, gender, email');
+        $pm->select('id, nama_depan, nama_belakang, email, nohp,alamat, kota, gender, foto, tgl_daftar, status_aktif, berlaku_awal, berlaku_akhir');
 
         return (new Datatable( $pm ))
-                ->setFieldFilter(['nama', 'email', 'gender'])
+                ->setFieldFilter(['nama_depan',  'nama_belakang', 'email', 'nohp','alamat', 'kota', 'gender', 'foto', 'tgl_daftar', 'status_aktif', 'berlaku_awal', 'berlaku_akhir'])
                 ->draw();
     }
 
@@ -100,13 +35,20 @@ class AnggotaController extends BaseController
 
     public function store(){
         $pm     = new AnggotaModel();
-        $sandi  = $this->request->getVar('sandi');
 
         $id = $pm->insert([
-            'nama'      => $this->request->getVar('nama'),
-            'gender'    => $this->request->getVar('gender'),
-            'email'     => $this->request->getVar('email'),
-            'sandi'     => password_hash($sandi, PASSWORD_BCRYPT),
+            'nama_depan'      => $this->request->getVar('nama_depan'),
+            'nama_belakang'     => $this->request->getVar('nama_belakang'),
+            'email'          => $this->request->getVar('email'),
+            'nohp'          => $this->request->getVar('nohp'),
+            'alamat'        => $this->request->getVar('alamat'),
+            'kota'          => $this->request->getVar('kota'),
+            'gender'        => $this->request->getVar('gender'),
+            'foto'          => $this->request->getVar('foto'),
+            'tgl_daftar'    => $this->request->getVar('tgl_daftar'),
+            'status_aktif'  => $this->request->getVar('status_aktif'),
+            'berlaku_awal'  => $this->request->getVar('berlaku_awal'),
+            'berlaku_akhir' => $this->request->getVar('berlaku_akhir'),
         ]);
         return $this->response->setJSON(['id' => $id])
                     ->setStatusCode( intval($id) > 0 ? 200 : 406 );
@@ -120,10 +62,26 @@ class AnggotaController extends BaseController
             throw PageNotFoundException::forPageNotFound();
 
         $hasil  = $pm->update($id, [
-            'nama'      => $this->request->getVar('nama'),
-            'gender'    => $this->request->getVar('gender'),
-            'email'     => $this->request->getVar('email'),
+            'nama_depan'      => $this->request->getVar('nama_depan'),
+            'nama_belakang'   => $this->request->getVar('nama_belakang'),
+            'email'           => $this->request->getVar('email'),
+            'nohp'            => $this->request->getVar('nohp'),
+            'alamat'        => $this->request->getVar('alamat'),
+            'kota'          => $this->request->getVar('kota'),
+            'gender'        => $this->request->getVar('gender'),
+            'foto'          => $this->request->getVar('foto'),
+            'tgl_daftar'    => $this->request->getVar('tgl_daftar'),
+            'status_aktif'  => $this->request->getVar('status_aktif'),
+            'berlaku_awal'  => $this->request->getVar('berlaku_awal'),
+            'berlaku_akhir' => $this->request->getVar('berlaku_akhir'),
         ]);
         return $this->response->setJSON(['result'=>$hasil]);
+    }
+
+    public function delete(){
+        $pm     = new AnggotaModel();
+        $id     = $this->request->getVar('id');
+        $hasil  = $pm->delete($id);
+        return $this->response->setJSON(['result' => $hasil ]);
     }
 }

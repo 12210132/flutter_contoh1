@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class StokKoleksiModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'stokkoleksi';
+    protected $table            = 'stok_koleksi';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
