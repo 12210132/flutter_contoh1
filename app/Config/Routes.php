@@ -2,6 +2,8 @@
 
 namespace Config;
 
+use CodeIgniter\Router\RouteCollection;
+
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
 
@@ -36,6 +38,23 @@ $routes->set404Override();
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
+
+$routes->group('bahasa', function(RouteCollection $routes){
+    $routes->get('/', 'BahasaController::index');
+    $routes->post('/', 'BahasaController::store');
+    $routes->patch('/', 'BahasaController::update');
+    $routes->delete('/', 'BahasaController::delete');
+    $routes->get('(:num)', 'BahasaController::show/$1');
+    $routes->get('all', 'BahasaController::all');
+});
+$routes->group('Kategori', function(RouteCollection $routes){
+    $routes->get('/', 'KategoriController::index');
+    $routes->post('/', 'KategoriController::store');
+    $routes->patch('/', 'KategoriController::update');
+    $routes->delete('/', 'KategoriController::delete');
+    $routes->get('(:num)', 'KategoriController::show/$1');
+    $routes->get('all', 'KategoriController::all');
+});
 
 /*
  * --------------------------------------------------------------------

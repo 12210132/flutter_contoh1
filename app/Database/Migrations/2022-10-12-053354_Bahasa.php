@@ -15,7 +15,7 @@ class Bahasa extends Migration
 
 
         ]);
-        $this->forge->addkey('id');
+        $this->forge->addPrimaryKey('kode');
         $this->forge->createTable('bahasa');
         
 
